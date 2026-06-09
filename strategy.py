@@ -40,38 +40,42 @@ def calculate_rsi(df: pd.DataFrame, period: int = 14) -> pd.Series:
     rsi = 100 - (100 / (1 + rs))
     return rsi.fillna(50) # Neutro si no hay suficientes datos
 
-def generate_signals(df: pd.DataFrame, ema_window: int = 50, rsi_window: int = 14, rsi_min: int = 50, rsi_max: int = 70) -> pd.DataFrame:
+def generate_signals(df: pd.DataFrame, ema_window: int = 50, rsi_window: int = 14) -> pd.DataFrame:
     """
-    Cerebro Institucional: Tendencia (EMA) + Momentum (RSI).
-    Identifica las zonas de compra seguras.
+    Cerebro Institucional Opción C: Market Maker con Freno de Emergencia.
+    Calcula volatilidad para el Grid Dinámico y detecta colapsos estructurales.
     """
     df = df.copy()
     
-    # 1. Calculamos la volatilidad para el riesgo dinámico (Trailing Stop)
+    # 1. Calculamos la volatilidad absoluta (ATR)
     df['atr'] = calculate_atr(df, 14)
     
-    # 2. Calculamos los indicadores principales
+    # 2. Grid Dinámico: Espaciado basado en Volatilidad (ATR / Precio)
+    # Multiplicamos por 0.5 para que las trampas estén a media vela de distancia en promedio
+    raw_grid_pct = (df['atr'] / df['close']) * 0.5
+    # Limitamos entre 0.2% y 1.5% para seguridad
+    df['dynamic_grid_pct'] = raw_grid_pct.clip(lower=0.002, upper=0.015)
+    
+    # 3. Calculamos los indicadores de emergencia
     df['ema_50'] = calculate_ema(df, ema_window)
     df['rsi_14'] = calculate_rsi(df, rsi_window)
     
     df['signal'] = 0
     
-    # Iteramos a partir del periodo 50 para que la EMA tenga datos válidos
+    # Iteramos a partir del periodo 50 para tener datos válidos
     for i in range(max(ema_window, rsi_window), len(df)):
         current_close = df.loc[i, 'close']
         current_ema = df.loc[i, 'ema_50']
         current_rsi = df.loc[i, 'rsi_14']
         
-        # --- GATILLO DE COMPRA (OPORTUNIDAD) ---
-        # Regla 1: Precio debe estar POR ENCIMA de la EMA (Tendencia Alcista confirmada)
-        # Regla 2: El RSI debe estar en el rango óptimo parametrizado
-        if current_close > current_ema and rsi_min < current_rsi < rsi_max:
-            df.loc[i, 'signal'] = 1
+        # --- GATILLO DE COMPRA ---
+        # ELIMINADO en Opción C: El Grid despliega trampas de inmediato como Market Maker.
+        # df.loc[i, 'signal'] = 1 (ya no se usa)
             
-        # --- GATILLO DE PELIGRO (ABORTAR) ---
-        # Si el precio cae por debajo de la Media Móvil, la tendencia alcista se rompió.
-        # Es una señal clara para salir de todas las operaciones del Grid.
-        elif current_close < current_ema:
+        # --- GATILLO DE PELIGRO (CAPA 3 - ABORTAR) ---
+        # Condición 1: El precio cae por debajo de la Media Móvil (Tendencia alcista rota)
+        # Condición 2: El RSI cae de 25 (Pánico absoluto en el mercado)
+        if current_close < current_ema or current_rsi < 25:
             df.loc[i, 'signal'] = -1
             
     return df

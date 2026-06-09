@@ -15,8 +15,7 @@ class HybridBot:
     def __init__(self, symbol="BTCUSDT"):
         self.symbol = symbol
         self.client = get_binance_client()
-        self.grid_spacing_pct = 0.005 # 0.5% Scalping
-        self.num_grids = 4
+        self.num_grids = 10
         self.state = self.load_state()
 
     def load_state(self):
@@ -37,10 +36,10 @@ class HybridBot:
             "symbol": self.symbol,
             "base_price": current_price,
             "is_running": True,
-            "hold_position": None,
             "grids": [],
             "total_profit": 0.0,
-            "history": []
+            "history": [],
+            "grid_spacing_pct": 0.0
         }
         self.save_state()
 
@@ -75,36 +74,19 @@ class HybridBot:
         })
         self.state["history"] = self.state["history"][:50]
 
-    def deploy_hybrid_system(self, current_price, atr):
+    def deploy_grid_system(self, current_price, grid_spacing_pct):
         total_qty, sl_price, total_usdt_alloc = calculate_auto_compounding_size(
             self.client, self.symbol, current_price, allocation_percentage=0.05
         )
         if total_qty <= 0: return False
 
-        print(f"[INICIO] MOTOR HÍBRIDO. Capital asignado: {total_usdt_alloc:.2f} USDT")
+        print(f"[INICIO] MOTOR GRID DINÁMICO. Capital asignado: {total_usdt_alloc:.2f} USDT | Separación: {grid_spacing_pct*100:.2f}%")
         
-        hold_usdt = total_usdt_alloc * 0.50
-        scalp_usdt = total_usdt_alloc * 0.50
-
-        # --- 1. COMPRAR BOLSA HOLD (Market) ---
-        hold_qty_raw = hold_usdt / current_price
-        order = self.execute_market_order(Client.SIDE_BUY, hold_qty_raw)
-        if order:
-            self.state["hold_position"] = {
-                "entry_price": current_price,
-                "qty": float(order['executedQty']),
-                "highest_price": current_price,
-                "atr_at_entry": atr,
-                "usdt_allocated": hold_usdt
-            }
-            self.log_trade("COMPRA_HOLD", current_price, 0.0)
-
-        # --- 2. DESPLEGAR GRID SCALPING (LIMIT BUY ORDERS) ---
-        bullet_usdt = scalp_usdt / self.num_grids
+        bullet_usdt = total_usdt_alloc / self.num_grids
         grids = []
         for i in range(1, self.num_grids + 1):
-            buy_p = current_price * (1 - (i * self.grid_spacing_pct))
-            sell_p = buy_p * (1 + self.grid_spacing_pct)
+            buy_p = current_price * (1 - (i * grid_spacing_pct))
+            sell_p = buy_p * (1 + grid_spacing_pct)
             qty_raw = bullet_usdt / buy_p
             
             # Anclar orden en Binance
@@ -121,23 +103,13 @@ class HybridBot:
                 })
         self.state["grids"] = grids
         self.state["base_price"] = current_price
+        self.state["grid_spacing_pct"] = grid_spacing_pct
         return True
 
     def panic_sell_everything(self, current_price):
-        print("[EMERGENCIA] SEÑAL DE EMERGENCIA (-1). Abortando sistema híbrido.")
+        print("[EMERGENCIA] SEÑAL DE EMERGENCIA (-1). Abortando sistema.")
         # Primero cancelar todas las órdenes Límite puestas en Binance
         cancel_all_open_orders(self.client, self.symbol)
-
-        # Vender bolsa Hold a precio de mercado
-        if self.state.get("hold_position"):
-            pos = self.state["hold_position"]
-            order = self.execute_market_order(Client.SIDE_SELL, pos["qty"])
-            if order:
-                c_quote = float(order.get('cummulativeQuoteQty', 0))
-                profit = c_quote - pos["usdt_allocated"] if c_quote > 0 else 0.0
-                self.state["total_profit"] += profit
-                self.log_trade("VENTA_HOLD_PANIC", current_price, profit)
-            self.state["hold_position"] = None
         
         # Vender posiciones abiertas del Grid
         for grid in self.state.get("grids", []):
@@ -237,31 +209,27 @@ class HybridBot:
 
         try:
             df = get_latest_klines(self.symbol, interval='15m', limit=100)
-            df_signals = generate_signals(df, ema_window=50, rsi_window=21, rsi_min=60, rsi_max=70)
+            df_signals = generate_signals(df, ema_window=50, rsi_window=14)
             last_signal_row = df_signals.iloc[-1]
             signal = last_signal_row['signal']
-            atr = last_signal_row['atr']
+            dynamic_grid_pct = last_signal_row['dynamic_grid_pct']
         except Exception as e:
             print(f"Error analizando datos: {e}")
             if state_changed: self.save_state()
             return
 
-        hold_pos = self.state.get("hold_position")
+        grids = self.state.get("grids", [])
         
-        if hold_pos is None and len(self.state.get("grids", [])) == 0:
-            if signal == 1:
-                if self.deploy_hybrid_system(current_price, atr):
-                    state_changed = True
-        elif hold_pos is not None:
-            if current_price > hold_pos["highest_price"]:
-                hold_pos["highest_price"] = current_price
+        # Despliegue automático (Market Maker Puro) solo si el mercado no está colapsando
+        if len(grids) == 0 and signal != -1:
+            if self.deploy_grid_system(current_price, dynamic_grid_pct):
                 state_changed = True
-                
-            trailing_stop = hold_pos["highest_price"] - (atr * 2)
-            hard_stop = hold_pos["entry_price"] * 0.98
-            activation_price = max(hard_stop, trailing_stop)
-            
-            if signal == -1 or current_price <= activation_price:
+        
+        # Freno de Emergencia (Capa 3)
+        if len(grids) > 0:
+            # Si hay señal de pánico, o el precio cayó más del 3% por debajo del último nivel del grid
+            lowest_grid_price = min([g["buy_price"] for g in grids])
+            if signal == -1 or current_price < (lowest_grid_price * 0.97):
                 self.panic_sell_everything(current_price)
                 return
 
@@ -270,13 +238,13 @@ class HybridBot:
 
 def run_trading_bot():
     print("===============================================================")
-    print("Iniciando Motor HÍBRIDO PRO (Órdenes Límite Directo a Binance)")
+    print("Iniciando Motor GRID DINÁMICO (Opción C - Frecuencia 3s)")
     print("===============================================================")
     bot = HybridBot(symbol="BTCUSDT")
     while True:
         try: bot.tick()
         except Exception as e: print(f"Error: {e}")
-        time.sleep(15)
+        time.sleep(3)
 
 if __name__ == "__main__":
     run_trading_bot()
