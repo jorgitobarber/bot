@@ -74,6 +74,33 @@ def execute_buy_order(client: Client, symbol: str, quantity: float) -> dict | No
         print(f"Error al ejecutar orden de compra: {e}")
         return None
 
+def execute_limit_order(client: Client, symbol: str, side: str, quantity: float, price: float) -> dict | None:
+    """
+    Ejecuta una orden LIMIT en Binance. Deja la orden en el Order Book hasta que el precio la toque.
+    """
+    try:
+        step_size, tick_size, min_qty = get_symbol_filters(client, symbol)
+        rounded_qty = round_step(quantity, step_size)
+        rounded_price = round_step(price, tick_size)
+
+        if rounded_qty < min_qty:
+            print(f"[LIMIT] Cantidad {rounded_qty} muy pequeña.")
+            return None
+
+        print(f"Enviando orden LIMIT {side}: {rounded_qty} {symbol} @ {rounded_price}")
+        order = client.create_order(
+            symbol=symbol,
+            side=side,
+            type=Client.ORDER_TYPE_LIMIT,
+            timeInForce=Client.TIME_IN_FORCE_GTC,
+            quantity=rounded_qty,
+            price=rounded_price
+        )
+        return order
+    except Exception as e:
+        print(f"Error al ejecutar LIMIT {side}: {e}")
+        return None
+
 def execute_stop_loss_order(
     client: Client,
     symbol: str,

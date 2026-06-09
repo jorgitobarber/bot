@@ -69,15 +69,24 @@
                 <button id="toggleBotBtn" style="width: 100%; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin-bottom: 10px;">Encender Bot</button>
                 <div style="font-size: 0.85rem; color: #94a3b8;">
                     <div>Niveles Comprados: <span id="gridBoughtCount" style="color:#00ff88;">0</span> / 100</div>
+                    <div>Capital Invertido: <span id="gridInvested" style="color:#f59e0b;">$ 0.00</span></div>
                     <div>Ganancia Neta: <span id="gridProfit" style="color:#00ff88;">$ 0.00</span></div>
+                </div>
+                <div style="margin-top: 10px; font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 5px;">
+                    <p style="margin-bottom: 5px; color: white;">Órdenes Abiertas (Binance):</p>
+                    <ul id="openOrdersList" style="list-style: none; padding: 0; margin: 0; max-height: 100px; overflow-y: auto;">
+                        <li>Cargando...</li>
+                    </ul>
                 </div>
             </div>
             
-            <div class="history-panel" style="margin-top: 1.5rem; background: rgba(30, 41, 59, 0.5); padding: 1rem; border-radius: 8px; max-height: 250px; overflow-y: auto;">
+            <div class="history-panel" style="margin-top: 1rem; background: rgba(30, 41, 59, 0.5); padding: 1rem; border-radius: 8px; flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 250px;">
                 <p style="margin-bottom: 5px;">Libro de Operaciones</p>
-                <ul id="tradeHistoryList" style="list-style: none; padding: 0; margin: 0; font-size: 0.8rem; color: #94a3b8;">
-                    <li>A la espera de movimientos...</li>
-                </ul>
+                <div style="overflow-y: auto; flex: 1; padding-right: 5px;">
+                    <ul id="tradeHistoryList" style="list-style: none; padding: 0; margin: 0; font-size: 0.8rem; color: #94a3b8;">
+                        <li>A la espera de movimientos...</li>
+                    </ul>
+                </div>
             </div>
         </aside>
 

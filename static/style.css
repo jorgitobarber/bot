@@ -27,8 +27,9 @@ body {
     width: 320px; background: var(--panel-bg);
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border-right: 1px solid var(--border-color);
-    padding: 2rem; display: flex; flex-direction: column; gap: 2rem;
+    padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;
     box-shadow: 4px 0 24px rgba(0,0,0,0.2); z-index: 10;
+    overflow-y: auto; overflow-x: hidden;
 }
 
 .logo h2 { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; }

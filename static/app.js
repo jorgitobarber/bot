@@ -159,14 +159,24 @@ async function fetchGridState() {
             }
             
             let boughtCount = 0;
+            let totalInvested = 0.0;
+            if (state.hold_position) {
+                totalInvested += state.hold_position.usdt_allocated || 0;
+            }
             
             // Limpiar líneas anteriores
             gridLines.forEach(line => candleSeries.removePriceLine(line));
             gridLines = [];
             
+            const openOrdersList = document.getElementById('openOrdersList');
+            if(openOrdersList) openOrdersList.innerHTML = '';
+
             state.grids.forEach(g => {
+                let li = document.createElement('li');
+                li.style.marginBottom = '2px';
                 if (g.status === "WAITING_SELL") {
                     boughtCount++;
+                    totalInvested += g.alloc_usdt || (g.btc_qty * g.buy_price) || 11.8;
                     // Línea de Take Profit
                     const line = candleSeries.createPriceLine({
                         price: g.sell_price, color: '#00ff88', lineWidth: 1,
@@ -174,6 +184,7 @@ async function fetchGridState() {
                         axisLabelVisible: true
                     });
                     gridLines.push(line);
+                    li.innerHTML = `<span style="color:#00ff88">VENTA</span> en $${g.sell_price.toFixed(2)}`;
                 } else {
                     // Línea de Compra
                     const line = candleSeries.createPriceLine({
@@ -182,10 +193,14 @@ async function fetchGridState() {
                         axisLabelVisible: true
                     });
                     gridLines.push(line);
+                    li.innerHTML = `<span style="color:#3b82f6">COMPRA</span> en $${g.buy_price.toFixed(2)}`;
                 }
+                if(openOrdersList) openOrdersList.appendChild(li);
             });
             
             boughtCountEl.innerText = boughtCount;
+            const investedEl = document.getElementById('gridInvested');
+            if (investedEl) investedEl.innerText = '$ ' + totalInvested.toFixed(2);
             profitEl.innerText = '$ ' + state.total_profit.toFixed(2);
             
             // Render History
@@ -199,11 +214,12 @@ async function fetchGridState() {
                     li.style.paddingBottom = '3px';
                     
                     const timeSpan = `<span style="color:#64748b">${trade.time}</span>`;
-                    const typeSpan = trade.type === 'COMPRA' ? `<span style="color:#3b82f6">COMPRA</span>` : `<span style="color:#a855f7">VENTA</span>`;
+                    const typeSpan = trade.type.includes('COMPRA') ? `<span style="color:#3b82f6">COMPRA</span>` : `<span style="color:#a855f7">VENTA</span>`;
                     const priceSpan = `<span>$${trade.price.toFixed(2)}</span>`;
-                    const profitSpan = trade.profit > 0 ? `<span style="color:#00ff88">+$${trade.profit.toFixed(3)}</span>` : '';
+                    const profitSpan = trade.profit > 0 ? `<br><span style="color:#00ff88">Beneficio: +$${trade.profit.toFixed(3)}</span>` : '';
+                    const buySpan = trade.buy_price > 0 ? `<br><span style="color:#64748b">Comprado en: $${trade.buy_price.toFixed(2)}</span>` : '';
                     
-                    li.innerHTML = `${timeSpan} ${typeSpan} @ ${priceSpan} ${profitSpan}`;
+                    li.innerHTML = `${timeSpan} ${typeSpan} @ ${priceSpan} ${buySpan} ${profitSpan}`;
                     historyList.appendChild(li);
                 });
             } else {
