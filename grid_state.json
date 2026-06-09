@@ -1,0 +1,301 @@
+{
+    "base_price": 62716.0,
+    "grids": [
+        {
+            "level": 1,
+            "buy_price": 62402.42,
+            "sell_price": 62714.43209999999,
+            "status": "WAITING_SELL",
+            "btc_qty": 0.00019
+        },
+        {
+            "level": 2,
+            "buy_price": 62088.84,
+            "sell_price": 62399.28419999999,
+            "status": "WAITING_SELL",
+            "btc_qty": 0.00019
+        },
+        {
+            "level": 3,
+            "buy_price": 61775.26,
+            "sell_price": 62084.1363,
+            "status": "WAITING_SELL",
+            "btc_qty": 0.00019
+        },
+        {
+            "level": 4,
+            "buy_price": 61461.68,
+            "sell_price": 61768.988399999995,
+            "status": "WAITING_BUY",
+            "btc_qty": 0.0
+        },
+        {
+            "level": 5,
+            "buy_price": 61148.1,
+            "sell_price": 61453.84049999999,
+            "status": "WAITING_BUY",
+            "btc_qty": 0.0
+        },
+        {
+            "level": 6,
+            "buy_price": 60834.52,
+            "sell_price": 61138.69259999999,
+            "status": "WAITING_BUY",
+            "btc_qty": 0.0
+        },
+        {
+            "level": 7,
+            "buy_price": 60520.939999999995,
+            "sell_price": 60823.54469999999,
+            "status": "WAITING_BUY",
+            "btc_qty": 0.0
+        },
+        {
+            "level": 8,
+            "buy_price": 60207.36,
+            "sell_price": 60508.396799999995,
+            "status": "WAITING_BUY",
+            "btc_qty": 0.0
+        },
+        {
+            "level": 9,
+            "buy_price": 59893.78,
+            "sell_price": 60193.24889999999,
+            "status": "WAITING_BUY",
+            "btc_qty": 0.0
+        },
+        {
+            "level": 10,
+            "buy_price": 59580.2,
+            "sell_price": 59878.10099999999,
+            "status": "WAITING_BUY",
+            "btc_qty": 0.0
+        }
+    ],
+    "total_profit": 0.8222373999999881,
+    "is_running": true,
+    "history": [
+        {
+            "time": "14:57:19",
+            "type": "VENTA",
+            "price": 61793.91,
+            "profit": 0.558781999999999
+        },
+        {
+            "time": "14:52:34",
+            "type": "VENTA",
+            "price": 61708.51,
+            "profit": -0.0694019000000008
+        },
+        {
+            "time": "14:52:32",
+            "type": "VENTA",
+            "price": 61708.51,
+            "profit": -0.0694019000000008
+        },
+        {
+            "time": "14:52:20",
+            "type": "COMPRA",
+            "price": 60623.55,
+            "profit": 0.0
+        },
+        {
+            "time": "14:52:18",
+            "type": "COMPRA",
+            "price": 60623.55,
+            "profit": 0.0
+        },
+        {
+            "time": "14:52:14",
+            "type": "COMPRA",
+            "price": 60623.55,
+            "profit": 0.0
+        },
+        {
+            "time": "13:17:47",
+            "type": "VENTA",
+            "price": 61772.97,
+            "profit": -0.06313570000000013
+        },
+        {
+            "time": "13:01:18",
+            "type": "VENTA",
+            "price": 61473.99,
+            "profit": 0.4947979999999994
+        },
+        {
+            "time": "12:54:38",
+            "type": "VENTA",
+            "price": 61252.1,
+            "profit": -0.16210099999999983
+        },
+        {
+            "time": "12:54:37",
+            "type": "VENTA",
+            "price": 61252.1,
+            "profit": -0.16210099999999983
+        },
+        {
+            "time": "12:54:36",
+            "type": "VENTA",
+            "price": 61252.1,
+            "profit": -0.16210099999999983
+        },
+        {
+            "time": "12:54:35",
+            "type": "VENTA",
+            "price": 61252.1,
+            "profit": 0.4504199999999994
+        },
+        {
+            "time": "12:54:33",
+            "type": "VENTA",
+            "price": 61252.1,
+            "profit": 0.4504199999999994
+        },
+        {
+            "time": "12:54:21",
+            "type": "COMPRA",
+            "price": 56554.75,
+            "profit": 0.0
+        },
+        {
+            "time": "12:54:19",
+            "type": "COMPRA",
+            "price": 56554.75,
+            "profit": 0.0
+        },
+        {
+            "time": "12:54:17",
+            "type": "COMPRA",
+            "price": 56554.75,
+            "profit": 0.0
+        },
+        {
+            "time": "12:54:15",
+            "type": "COMPRA",
+            "price": 56554.75,
+            "profit": 0.0
+        },
+        {
+            "time": "12:54:12",
+            "type": "COMPRA",
+            "price": 56554.75,
+            "profit": 0.0
+        },
+        {
+            "time": "12:44:05",
+            "type": "VENTA",
+            "price": 61181.12,
+            "profit": -0.17558720000000072
+        },
+        {
+            "time": "12:40:00",
+            "type": "COMPRA",
+            "price": 60805.8,
+            "profit": 0.0
+        },
+        {
+            "time": "11:29:59",
+            "type": "VENTA",
+            "price": 61311.17,
+            "profit": -0.14917530000000134
+        },
+        {
+            "time": "11:29:57",
+            "type": "VENTA",
+            "price": 61311.17,
+            "profit": -0.14917530000000134
+        },
+        {
+            "time": "11:29:55",
+            "type": "VENTA",
+            "price": 61311.17,
+            "profit": -0.14917530000000134
+        },
+        {
+            "time": "11:29:54",
+            "type": "VENTA",
+            "price": 61311.17,
+            "profit": -0.14917530000000134
+        },
+        {
+            "time": "11:29:52",
+            "type": "VENTA",
+            "price": 61311.17,
+            "profit": 0.4640259999999987
+        },
+        {
+            "time": "11:29:39",
+            "type": "COMPRA",
+            "price": 58840.89,
+            "profit": 0.0
+        },
+        {
+            "time": "11:29:38",
+            "type": "COMPRA",
+            "price": 58840.89,
+            "profit": 0.0
+        },
+        {
+            "time": "11:29:36",
+            "type": "COMPRA",
+            "price": 58840.89,
+            "profit": 0.0
+        },
+        {
+            "time": "11:29:34",
+            "type": "COMPRA",
+            "price": 58840.89,
+            "profit": 0.0
+        },
+        {
+            "time": "11:29:31",
+            "type": "COMPRA",
+            "price": 58840.89,
+            "profit": 0.0
+        },
+        {
+            "time": "11:29:30",
+            "type": "COMPRA",
+            "price": 58840.89,
+            "profit": 0.0
+        },
+        {
+            "time": "11:27:45",
+            "type": "COMPRA",
+            "price": 61395.4,
+            "profit": 0.0
+        },
+        {
+            "time": "11:27:33",
+            "type": "VENTA",
+            "price": 61791.9,
+            "profit": -0.13567770000000046
+        },
+        {
+            "time": "11:23:34",
+            "type": "COMPRA",
+            "price": 61433.15,
+            "profit": 0.0
+        },
+        {
+            "time": "11:11:39",
+            "type": "COMPRA",
+            "price": 61649.99,
+            "profit": 0.0
+        },
+        {
+            "time": "11:11:37",
+            "type": "COMPRA",
+            "price": 61649.99,
+            "profit": 0.0
+        },
+        {
+            "time": "11:11:36",
+            "type": "COMPRA",
+            "price": 61649.99,
+            "profit": 0.0
+        }
+    ]
+}

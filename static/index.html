@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot de Trading - Dashboard Cuantitativo</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Script detector de errores ultra profundo -->
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            document.getElementById('currentPrice').innerText = "ERROR CRÍTICO: " + message;
+            document.getElementById('currentPrice').style.color = "#ff0055";
+            document.getElementById('currentPrice').style.fontSize = "1rem";
+        };
+    </script>
+
+    <!-- Librería local (nada de internet) -->
+    <script src="/static/lightweight-charts.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>Cerebro <span>Cuántico</span></h2>
+            </div>
+            
+            <div class="control-group">
+                <label for="symbolSelect">Criptomoneda (Activo)</label>
+                <select id="symbolSelect">
+                    <option value="BTCUSDT" selected>Bitcoin (BTC/USDT)</option>
+                    <option value="ETHUSDT">Ethereum (ETH/USDT)</option>
+                    <option value="BNBUSDT">Binance Coin (BNB/USDT)</option>
+                    <option value="SOLUSDT">Solana (SOL/USDT)</option>
+                    <option value="ADAUSDT">Cardano (ADA/USDT)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="intervalSelect">Temporalidad</label>
+                <select id="intervalSelect">
+                    <option value="1m" selected>1 Minuto</option>
+                    <option value="15m">15 Minutos</option>
+                    <option value="1h">1 Hora</option>
+                    <option value="4h">4 Horas</option>
+                    <option value="1w">1 Semana</option>
+                </select>
+            </div>
+
+            <div class="status-panel">
+                <p>Precio Base (Entrada):</p>
+                <h3 id="basePrice">Cargando...</h3>
+                <div class="bot-status">
+                    <span class="status-indicator"></span>
+                    <span id="botStateText">Escáner Activo</span>
+                </div>
+            </div>
+
+            <div class="portfolio-panel">
+                <p>Mi Billetera (Testnet)</p>
+                <ul id="portfolioList">
+                    <li>Cargando saldos...</li>
+                </ul>
+            </div>
+
+            <div class="grid-panel" style="margin-top: 1.5rem; background: rgba(30, 41, 59, 0.5); padding: 1rem; border-radius: 8px;">
+                <p>Motor Grid Alta Frecuencia</p>
+                <button id="toggleBotBtn" style="width: 100%; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin-bottom: 10px;">Encender Bot</button>
+                <div style="font-size: 0.85rem; color: #94a3b8;">
+                    <div>Niveles Comprados: <span id="gridBoughtCount" style="color:#00ff88;">0</span> / 100</div>
+                    <div>Ganancia Neta: <span id="gridProfit" style="color:#00ff88;">$ 0.00</span></div>
+                </div>
+            </div>
+            
+            <div class="history-panel" style="margin-top: 1.5rem; background: rgba(30, 41, 59, 0.5); padding: 1rem; border-radius: 8px; max-height: 250px; overflow-y: auto;">
+                <p style="margin-bottom: 5px;">Libro de Operaciones</p>
+                <ul id="tradeHistoryList" style="list-style: none; padding: 0; margin: 0; font-size: 0.8rem; color: #94a3b8;">
+                    <li>A la espera de movimientos...</li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="charts-container">
+            <div class="chart-box" id="priceChartContainer">
+                <div class="chart-title">Precio y EMA (20)</div>
+            </div>
+            <div class="chart-box" id="rsiChartContainer">
+                <div class="chart-title">Momentum: RSI (14)</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Lógica de nuestra aplicación local -->
+    <script src="/static/app.js?v=2"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+# Entorno Virtual
+.venv/
+env/
+venv/
+ENV/
+
+# Variables de Entorno (Credenciales de Binance)
+.env
+
+# Archivos de caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDEs y otros
+.idea/
+.vscode/
+*.swp
+*.swo
