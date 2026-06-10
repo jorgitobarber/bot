@@ -12,6 +12,7 @@ def get_latest_klines(symbol: str, interval: str, limit: int = 100) -> pd.DataFr
     try:
         if limit > 1000:
             if interval == '1m': start_str = "2000 minutes ago"
+            elif interval == '5m': start_str = "10000 minutes ago"
             elif interval == '15m': start_str = "30000 minutes ago"
             elif interval == '1h': start_str = "5000 hours ago"
             elif interval == '4h': start_str = "20000 hours ago"

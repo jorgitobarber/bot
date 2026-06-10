@@ -76,7 +76,7 @@ class HybridBot:
 
     def deploy_grid_system(self, current_price, grid_spacing_pct):
         total_qty, sl_price, total_usdt_alloc = calculate_auto_compounding_size(
-            self.client, self.symbol, current_price, allocation_percentage=0.05
+            self.client, self.symbol, current_price, allocation_percentage=0.10
         )
         if total_qty <= 0: return False
 
@@ -208,7 +208,7 @@ class HybridBot:
         state_changed = self.check_limit_orders()
 
         try:
-            df = get_latest_klines(self.symbol, interval='15m', limit=100)
+            df = get_latest_klines(self.symbol, interval='5m', limit=100)
             df_signals = generate_signals(df, ema_window=50, rsi_window=14)
             last_signal_row = df_signals.iloc[-1]
             signal = last_signal_row['signal']
@@ -219,15 +219,67 @@ class HybridBot:
             return
 
         grids = self.state.get("grids", [])
+        trend_state = self.state.get("trend_position", None)
         
-        # Despliegue automático (Market Maker Puro) solo si el mercado no está colapsando
-        if len(grids) == 0 and signal != -1:
+        # --- MOTOR 1: TREND FOLLOWER (15%) ---
+        if signal == 2:
+            if not trend_state:
+                total_qty, sl_price, _ = calculate_auto_compounding_size(
+                    self.client, self.symbol, current_price, allocation_percentage=0.15, stop_loss_percentage=0.03
+                )
+                if total_qty > 0:
+                    print(f"[TREND] ¡TENDENCIA FUERTE DETECTADA (ADX>25)! Desplegando Franco-Tirador.")
+                    order = self.execute_market_order(Client.SIDE_BUY, total_qty)
+                    if order:
+                        from execution import execute_stop_loss_order
+                        sl_order = execute_stop_loss_order(self.client, self.symbol, total_qty, sl_price)
+                        self.state["trend_position"] = {
+                            "buy_price": current_price,
+                            "qty": total_qty,
+                            "highest_price": current_price,
+                            "stop_loss_price": sl_price,
+                            "sl_order_id": sl_order['orderId'] if sl_order else None
+                        }
+                        self.log_trade("COMPRA_TREND", current_price)
+                        state_changed = True
+            else:
+                # Trailing Stop: Si el precio sube un 1.5% desde el último máximo, subimos el Stop
+                if current_price > trend_state["highest_price"] * 1.015:
+                    trend_state["highest_price"] = current_price
+                    new_sl_price = current_price * (1 - 0.03) # Trailing del 3%
+                    if new_sl_price > trend_state["stop_loss_price"]:
+                        print(f"[TREND] Actualizando Trailing Stop hacia arriba: {new_sl_price:.2f}")
+                        if trend_state.get("sl_order_id"):
+                            try: self.client.cancel_order(symbol=self.symbol, orderId=trend_state["sl_order_id"])
+                            except: pass
+                        from execution import execute_stop_loss_order
+                        sl_order = execute_stop_loss_order(self.client, self.symbol, trend_state["qty"], new_sl_price)
+                        trend_state["stop_loss_price"] = new_sl_price
+                        if sl_order: trend_state["sl_order_id"] = sl_order['orderId']
+                        state_changed = True
+
+        # Revisar si el Stop Loss del Trend se ejecutó
+        if trend_state and trend_state.get("sl_order_id"):
+            try:
+                order_info = self.client.get_order(symbol=self.symbol, orderId=trend_state["sl_order_id"])
+                if order_info['status'] == 'FILLED':
+                    c_quote = float(order_info['cummulativeQuoteQty'])
+                    profit = c_quote - (trend_state["qty"] * trend_state["buy_price"])
+                    self.state["total_profit"] += profit
+                    self.log_trade("VENTA_TREND_STOP", float(order_info['price']), profit, buy_price=trend_state["buy_price"])
+                    self.state["trend_position"] = None
+                    print(f"[TREND] Trailing Stop Alcanzado. Ola surfeada con éxito. Ganancia: {profit:.2f}")
+                    state_changed = True
+            except: pass
+
+        # --- MOTOR 2: GRID (10%) ---
+        # Despliegue automático solo si es Mercado Lateral (signal == 1)
+        if len(grids) == 0 and signal == 1:
             if self.deploy_grid_system(current_price, dynamic_grid_pct):
                 state_changed = True
         
-        # Freno de Emergencia (Capa 3)
+        # Freno de Emergencia (Capa 3) solo para el Grid
         if len(grids) > 0:
-            # Si hay señal de pánico, o el precio cayó más del 3% por debajo del último nivel del grid
             lowest_grid_price = min([g["buy_price"] for g in grids])
             if signal == -1 or current_price < (lowest_grid_price * 0.97):
                 self.panic_sell_everything(current_price)

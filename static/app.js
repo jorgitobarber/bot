@@ -244,10 +244,22 @@ document.getElementById('toggleBotBtn').addEventListener('click', async () => {
 document.getElementById('symbolSelect').addEventListener('change', fetchMarketData);
 document.getElementById('intervalSelect').addEventListener('change', fetchMarketData);
 
-// Arrancar todo
-fetchMarketData();
-fetchPortfolio();
-fetchGridState();
-setInterval(fetchMarketData, 5000);
-setInterval(fetchPortfolio, 10000);
-setInterval(fetchGridState, 3000);
+// Arrancar todo y programar los siguientes ciclos de forma recursiva
+async function runLoops() {
+    await fetchMarketData();
+    setTimeout(runLoops, 5000);
+}
+
+async function runPortfolioLoop() {
+    await fetchPortfolio();
+    setTimeout(runPortfolioLoop, 10000);
+}
+
+async function runGridStateLoop() {
+    await fetchGridState();
+    setTimeout(runGridStateLoop, 3000);
+}
+
+runLoops();
+runPortfolioLoop();
+runGridStateLoop();

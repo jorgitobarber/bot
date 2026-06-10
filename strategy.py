@@ -40,6 +40,38 @@ def calculate_rsi(df: pd.DataFrame, period: int = 14) -> pd.Series:
     rsi = 100 - (100 / (1 + rs))
     return rsi.fillna(50) # Neutro si no hay suficientes datos
 
+def calculate_adx(df: pd.DataFrame, period: int = 14) -> pd.Series:
+    """
+    Calcula el Average Directional Index (ADX) para medir la fuerza de la tendencia.
+    ADX > 25 indica tendencia fuerte. ADX < 25 indica mercado lateral.
+    """
+    high = df['high']
+    low = df['low']
+    close = df['close']
+    
+    tr1 = high - low
+    tr2 = (high - close.shift(1)).abs()
+    tr3 = (low - close.shift(1)).abs()
+    tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+    
+    up_move = high - high.shift(1)
+    down_move = low.shift(1) - low
+    
+    pos_dm = np.where((up_move > down_move) & (up_move > 0), up_move, 0.0)
+    neg_dm = np.where((down_move > up_move) & (down_move > 0), down_move, 0.0)
+    
+    smoothed_tr = tr.ewm(alpha=1/period, adjust=False).mean()
+    smoothed_pos_dm = pd.Series(pos_dm, index=df.index).ewm(alpha=1/period, adjust=False).mean()
+    smoothed_neg_dm = pd.Series(neg_dm, index=df.index).ewm(alpha=1/period, adjust=False).mean()
+    
+    pos_di = 100 * (smoothed_pos_dm / smoothed_tr)
+    neg_di = 100 * (smoothed_neg_dm / smoothed_tr)
+    
+    dx = 100 * (abs(pos_di - neg_di) / (pos_di + neg_di))
+    adx = dx.ewm(alpha=1/period, adjust=False).mean()
+    
+    return adx.fillna(0)
+
 def generate_signals(df: pd.DataFrame, ema_window: int = 50, rsi_window: int = 14) -> pd.DataFrame:
     """
     Cerebro Institucional Opción C: Market Maker con Freno de Emergencia.
@@ -53,12 +85,13 @@ def generate_signals(df: pd.DataFrame, ema_window: int = 50, rsi_window: int = 1
     # 2. Grid Dinámico: Espaciado basado en Volatilidad (ATR / Precio)
     # Multiplicamos por 0.5 para que las trampas estén a media vela de distancia en promedio
     raw_grid_pct = (df['atr'] / df['close']) * 0.5
-    # Limitamos entre 0.2% y 1.5% para seguridad
-    df['dynamic_grid_pct'] = raw_grid_pct.clip(lower=0.002, upper=0.015)
+    # Limitamos mínimo 0.5% (garantiza ganancia tras Binance) y máximo 1.5%
+    df['dynamic_grid_pct'] = raw_grid_pct.clip(lower=0.005, upper=0.015)
     
-    # 3. Calculamos los indicadores de emergencia
+    # 3. Calculamos los indicadores de tendencia y régimen
     df['ema_50'] = calculate_ema(df, ema_window)
     df['rsi_14'] = calculate_rsi(df, rsi_window)
+    df['adx_14'] = calculate_adx(df, 14)
     
     df['signal'] = 0
     
@@ -67,16 +100,21 @@ def generate_signals(df: pd.DataFrame, ema_window: int = 50, rsi_window: int = 1
         current_close = df.loc[i, 'close']
         current_ema = df.loc[i, 'ema_50']
         current_rsi = df.loc[i, 'rsi_14']
+        current_adx = df.loc[i, 'adx_14']
         
-        # --- GATILLO DE COMPRA ---
-        # ELIMINADO en Opción C: El Grid despliega trampas de inmediato como Market Maker.
-        # df.loc[i, 'signal'] = 1 (ya no se usa)
+        # --- LÓGICA DE RÉGIMEN HÍBRIDO ---
+        # Freno con Histéresis: Solo aborta si cae un 0.3% por debajo de la EMA (Colchón) o RSI < 25
+        if current_close < (current_ema * 0.997) or current_rsi < 25:
+            df.loc[i, 'signal'] = -1  # ABORTAR / FRENO
             
-        # --- GATILLO DE PELIGRO (CAPA 3 - ABORTAR) ---
-        # Condición 1: El precio cae por debajo de la Media Móvil (Tendencia alcista rota)
-        # Condición 2: El RSI cae de 25 (Pánico absoluto en el mercado)
-        if current_close < current_ema or current_rsi < 25:
-            df.loc[i, 'signal'] = -1
+        # Si estamos sobre la EMA (Tendencia alcista confirmada)
+        elif current_close >= current_ema:
+            if current_adx < 25:
+                # Mercado Lateral o tendencia débil: MODO GRID
+                df.loc[i, 'signal'] = 1
+            else:
+                # Tendencia Fuerte detectada: MODO TREND FOLLOWER
+                df.loc[i, 'signal'] = 2
             
     return df
 

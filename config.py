@@ -5,11 +5,18 @@ from binance.client import Client
 # Carga las variables desde el archivo .env a la memoria del sistema
 load_dotenv()
 
+_private_client = None
+_public_client = None
+
 def get_binance_client() -> Client:
     """
     Cliente PRIVADO para Ejecución y Billetera.
     Decide a qué red conectarse (Testnet o Mainnet) para operar.
     """
+    global _private_client
+    if _private_client is not None:
+        return _private_client
+        
     use_real_money_str = os.getenv("USE_REAL_MONEY", "False")
     use_real_money = use_real_money_str.strip().lower() == "true"
     
@@ -20,13 +27,15 @@ def get_binance_client() -> Client:
         if not api_key or not api_secret or api_key == "tu_api_key_real_aqui":
             raise ValueError("ERROR DE SEGURIDAD: Faltan las claves reales en .env")
         print("[!!!] ATENCION: CONECTADO A BINANCE MAINNET (EJECUCION REAL) [!!!]")
-        return Client(api_key, api_secret, testnet=False)
+        _private_client = Client(api_key, api_secret, testnet=False)
     else:
         # MODO SIMULACION (TESTNET)
         api_key = os.getenv("BINANCE_TESTNET_API_KEY")
         api_secret = os.getenv("BINANCE_TESTNET_SECRET_KEY")
         print("[i] Conectado a Binance Testnet (Ejecucion Simulada)")
-        return Client(api_key, api_secret, testnet=True)
+        _private_client = Client(api_key, api_secret, testnet=True)
+        
+    return _private_client
 
 def get_public_mainnet_client() -> Client:
     """
@@ -34,4 +43,9 @@ def get_public_mainnet_client() -> Client:
     Siempre se conecta a la Mainnet de Binance para obtener los precios
     y la historia REAL del mercado, sin requerir claves de API.
     """
-    return Client(testnet=False)
+    global _public_client
+    if _public_client is not None:
+        return _public_client
+        
+    _public_client = Client(testnet=False)
+    return _public_client

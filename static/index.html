@@ -40,7 +40,8 @@
             <div class="control-group">
                 <label for="intervalSelect">Temporalidad</label>
                 <select id="intervalSelect">
-                    <option value="1m" selected>1 Minuto</option>
+                    <option value="1m">1 Minuto</option>
+                    <option value="5m" selected>5 Minutos (Radar Actual)</option>
                     <option value="15m">15 Minutos</option>
                     <option value="1h">1 Hora</option>
                     <option value="4h">4 Horas</option>
@@ -92,7 +93,7 @@
 
         <main class="charts-container">
             <div class="chart-box" id="priceChartContainer">
-                <div class="chart-title">Precio y EMA (20)</div>
+                <div class="chart-title">Precio y EMA (50)</div>
             </div>
             <div class="chart-box" id="rsiChartContainer">
                 <div class="chart-title">Momentum: RSI (14)</div>

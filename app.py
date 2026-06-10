@@ -61,18 +61,18 @@ def market_data():
     symbol = request.args.get('symbol', 'BTCUSDT')
     interval = request.args.get('interval', '1m')
     
-    if interval in ['1m', '15m']:
-        limit = 2000 
-    elif interval in ['1h', '4h']:
-        limit = 5000
-    else:
-        limit = 10000
+    # Usar el parámetro de límite (por defecto 200 velas, suficientes para la EMA 50)
+    # Esto hace que la recarga de la página sea ultra rápida y sin lag
+    try:
+        limit = int(request.args.get('limit', 200))
+    except ValueError:
+        limit = 200
 
     try:
         df = get_latest_klines(symbol, interval, limit=limit)
         
-        # Calcular EMA 20 y RSI 14 locales para el visualizador
-        df['ema'] = df['close'].ewm(span=20, adjust=False).mean()
+        # Calcular EMA 50 y RSI 14 locales para el visualizador
+        df['ema'] = df['close'].ewm(span=50, adjust=False).mean()
         
         delta = df['close'].diff()
         gain = delta.clip(lower=0)
@@ -82,6 +82,8 @@ def market_data():
         rs = avg_gain / avg_loss
         df['rsi'] = 100 - (100 / (1 + rs))
         
+        import numpy as np
+        df.replace([np.inf, -np.inf], np.nan, inplace=True)
         df = df.dropna(subset=['ema', 'rsi', 'close'])
         df['time'] = (df['open_time'].astype('int64') // 10**9).astype(int)
         
