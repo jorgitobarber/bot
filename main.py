@@ -15,7 +15,7 @@ class HybridBot:
     def __init__(self, symbol="BTCUSDT"):
         self.symbol = symbol
         self.client = get_binance_client()
-        self.num_grids = 10
+        self.num_grids = 5
         self.state = self.load_state()
 
     def load_state(self):
@@ -38,6 +38,7 @@ class HybridBot:
             "is_running": True,
             "grids": [],
             "total_profit": 0.0,
+            "virtual_balance": 118.0,
             "history": [],
             "grid_spacing_pct": 0.0
         }
@@ -75,8 +76,9 @@ class HybridBot:
         self.state["history"] = self.state["history"][:50]
 
     def deploy_grid_system(self, current_price, grid_spacing_pct):
+        v_balance = self.state.get("virtual_balance", 118.0)
         total_qty, sl_price, total_usdt_alloc = calculate_auto_compounding_size(
-            self.client, self.symbol, current_price, allocation_percentage=0.10
+            self.client, self.symbol, current_price, allocation_percentage=0.5, override_balance=v_balance
         )
         if total_qty <= 0: return False
 
@@ -120,6 +122,7 @@ class HybridBot:
                     alloc = grid.get("alloc_usdt", grid.get("btc_qty", 0) * grid.get("buy_price", 0))
                     profit = c_quote - alloc if c_quote > 0 else 0.0
                     self.state["total_profit"] += profit
+                    self.state["virtual_balance"] = self.state.get("virtual_balance", 118.0) + profit
                     self.log_trade(f"VENTA_GRID_PANIC_L{grid['level']}", current_price, profit)
         
         self.state["grids"] = []
@@ -177,6 +180,7 @@ class HybridBot:
                     alloc = grid.get("alloc_usdt", grid.get("btc_qty", 0) * grid.get("buy_price", 0))
                     profit = c_quote - alloc if c_quote > 0 else 0.0
                     self.state["total_profit"] += profit
+                    self.state["virtual_balance"] = self.state.get("virtual_balance", 118.0) + profit
                     grid["btc_qty"] = 0.0
                     grid["status"] = "WAITING_BUY"
                     self.log_trade(f"VENTA_GRID_L{grid['level']}", executed_price, profit, buy_price=grid["buy_price"])
@@ -221,11 +225,12 @@ class HybridBot:
         grids = self.state.get("grids", [])
         trend_state = self.state.get("trend_position", None)
         
-        # --- MOTOR 1: TREND FOLLOWER (15%) ---
+        # --- MOTOR 1: TREND FOLLOWER (50%) ---
         if signal == 2:
             if not trend_state:
+                v_balance = self.state.get("virtual_balance", 118.0)
                 total_qty, sl_price, _ = calculate_auto_compounding_size(
-                    self.client, self.symbol, current_price, allocation_percentage=0.15, stop_loss_percentage=0.03
+                    self.client, self.symbol, current_price, allocation_percentage=0.5, stop_loss_percentage=0.03, override_balance=v_balance
                 )
                 if total_qty > 0:
                     print(f"[TREND] ¡TENDENCIA FUERTE DETECTADA (ADX>25)! Desplegando Franco-Tirador.")
@@ -266,19 +271,48 @@ class HybridBot:
                     c_quote = float(order_info['cummulativeQuoteQty'])
                     profit = c_quote - (trend_state["qty"] * trend_state["buy_price"])
                     self.state["total_profit"] += profit
+                    self.state["virtual_balance"] = self.state.get("virtual_balance", 118.0) + profit
                     self.log_trade("VENTA_TREND_STOP", float(order_info['price']), profit, buy_price=trend_state["buy_price"])
                     self.state["trend_position"] = None
                     print(f"[TREND] Trailing Stop Alcanzado. Ola surfeada con éxito. Ganancia: {profit:.2f}")
                     state_changed = True
             except: pass
 
-        # --- MOTOR 2: GRID (10%) ---
-        # Despliegue automático solo si es Mercado Lateral (signal == 1)
-        if len(grids) == 0 and signal == 1:
+        # --- MOTOR 2: GRID (50%) ---
+        # Despliegue automático si no hay emergencia (signal != -1)
+        if len(grids) == 0 and signal != -1:
             if self.deploy_grid_system(current_price, dynamic_grid_pct):
                 state_changed = True
-        
+                
+        # Lógica de Red Dinámica de Arrastre (Trailing Grid)
+        if len(grids) > 0 and signal != -1:
+            base_price = self.state.get("base_price", current_price)
+            grid_spacing_pct = self.state.get("grid_spacing_pct", 0.005)
+            # Si el precio actual sube más de 2 niveles por encima de la red
+            if current_price > base_price * (1 + (grid_spacing_pct * 2.0)):
+                print(f"[TRAILING GRID] Precio subió a {current_price:.2f}. Re-centrando red de pesca...")
+                # Cancelar órdenes límite actuales del Grid en Binance
+                for g in grids:
+                    if "order_id" in g:
+                        try: self.client.cancel_order(symbol=self.symbol, orderId=g["order_id"])
+                        except: pass
+                # Vender posiciones atrapadas para liberar capital al nuevo nivel
+                for g in grids:
+                    if g["status"] == "WAITING_SELL" and g.get("btc_qty", 0) > 0:
+                        order = self.execute_market_order(Client.SIDE_SELL, g["btc_qty"])
+                        if order:
+                            c_quote = float(order.get('cummulativeQuoteQty', 0))
+                            alloc = g.get("alloc_usdt", g.get("btc_qty", 0) * g.get("buy_price", 0))
+                            profit = c_quote - alloc if c_quote > 0 else 0.0
+                            self.state["total_profit"] += profit
+                            self.state["virtual_balance"] = self.state.get("virtual_balance", 118.0) + profit
+                            self.log_trade(f"VENTA_GRID_RECENTER_L{g['level']}", current_price, profit)
+                # Vaciar la red para que se vuelva a desplegar en el próximo tick
+                self.state["grids"] = []
+                state_changed = True
+
         # Freno de Emergencia (Capa 3) solo para el Grid
+        grids = self.state.get("grids", []) # Recargar por si se vació
         if len(grids) > 0:
             lowest_grid_price = min([g["buy_price"] for g in grids])
             if signal == -1 or current_price < (lowest_grid_price * 0.97):

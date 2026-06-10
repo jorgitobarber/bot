@@ -19,7 +19,8 @@ def calculate_auto_compounding_size(
     symbol: str,
     entry_price: float,
     allocation_percentage: float = 0.05,
-    stop_loss_percentage: float = 0.02
+    stop_loss_percentage: float = 0.02,
+    override_balance: float = None
 ) -> tuple[float, float, float]:
     """
     Interés Compuesto Automático:
@@ -32,8 +33,11 @@ def calculate_auto_compounding_size(
     - stop_loss_price: Precio de Stop Loss de seguridad.
     - position_size_usdt: Monto en USDT asignado a la posición (para registros).
     """
-    # 1. Obtener el saldo disponible en USDT
-    balance = get_available_balance(client, "USDT")
+    # 1. Obtener el saldo disponible en USDT (o usar el virtual)
+    if override_balance is not None:
+        balance = override_balance
+    else:
+        balance = get_available_balance(client, "USDT")
     if balance <= 0:
         print("Saldo en USDT insuficiente o igual a cero.")
         return 0.0, 0.0, 0.0

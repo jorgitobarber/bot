@@ -1,331 +1,70 @@
 {
-    "base_price": 61787.99,
-    "grids": [],
-    "total_profit": 22.608122081999884,
+    "symbol": "BTCUSDT",
+    "base_price": 61890.0,
     "is_running": true,
-    "history": [
+    "grids": [
         {
-            "time": "21:33:03",
-            "type": "VENTA_GRID_L9",
-            "price": 59302.57,
-            "profit": 4.828182397999996,
-            "buy_price": 59007.53045
+            "level": 1,
+            "buy_price": 61580.55,
+            "sell_price": 61888.45275,
+            "status": "WAITING_BUY",
+            "alloc_usdt": 11.8,
+            "btc_qty": 0.0,
+            "order_id": 3047518
         },
         {
-            "time": "21:33:01",
-            "type": "VENTA_GRID_L8",
-            "price": 59613.05,
-            "profit": 4.210123797999984,
-            "buy_price": 59316.4704
+            "level": 2,
+            "buy_price": 61271.1,
+            "sell_price": 61577.45549999999,
+            "status": "WAITING_BUY",
+            "alloc_usdt": 11.8,
+            "btc_qty": 0.0,
+            "order_id": 3047525
         },
         {
-            "time": "21:32:59",
-            "type": "VENTA_GRID_L7",
-            "price": 59923.54,
-            "profit": 3.592065197999986,
-            "buy_price": 59625.41035
+            "level": 3,
+            "buy_price": 60961.65,
+            "sell_price": 61266.458249999996,
+            "status": "WAITING_BUY",
+            "alloc_usdt": 11.8,
+            "btc_qty": 0.0,
+            "order_id": 3047529
         },
         {
-            "time": "21:32:57",
-            "type": "VENTA_GRID_L6",
-            "price": 60234.02,
-            "profit": 2.9740065979999883,
-            "buy_price": 59934.3503
+            "level": 4,
+            "buy_price": 60652.2,
+            "sell_price": 60955.46099999999,
+            "status": "WAITING_BUY",
+            "alloc_usdt": 11.8,
+            "btc_qty": 0.0,
+            "order_id": 3047534
         },
         {
-            "time": "21:32:55",
-            "type": "VENTA_GRID_L5",
-            "price": 60544.51,
-            "profit": 0.8044845979999877,
-            "buy_price": 60243.29025
-        },
-        {
-            "time": "21:32:52",
-            "type": "VENTA_GRID_L4",
-            "price": 60854.99,
-            "profit": 0.7299602979999946,
-            "buy_price": 60552.2302
-        },
-        {
-            "time": "21:32:50",
-            "type": "VENTA_GRID_L3",
-            "price": 61165.48,
-            "profit": 0.6492433979999959,
-            "buy_price": 60861.17015
-        },
-        {
-            "time": "21:32:48",
-            "type": "VENTA_GRID_L2",
-            "price": 61475.96,
-            "profit": 0.5622997979999838,
-            "buy_price": 61170.1101
-        },
-        {
-            "time": "21:32:46",
-            "type": "VENTA_GRID_L1",
-            "price": 61786.45,
-            "profit": 0.46916339799999207,
-            "buy_price": 61479.05005
-        },
-        {
-            "time": "21:32:39",
-            "type": "COMPRA_GRID_L9",
-            "price": 59007.53,
-            "profit": 0.0,
-            "buy_price": 0.0
-        },
-        {
-            "time": "21:32:37",
-            "type": "COMPRA_GRID_L8",
-            "price": 59316.47,
-            "profit": 0.0,
-            "buy_price": 0.0
-        },
-        {
-            "time": "21:32:36",
-            "type": "COMPRA_GRID_L7",
-            "price": 59625.41,
-            "profit": 0.0,
-            "buy_price": 0.0
-        },
-        {
-            "time": "21:32:34",
-            "type": "COMPRA_GRID_L6",
-            "price": 59934.35,
-            "profit": 0.0,
-            "buy_price": 0.0
-        },
-        {
-            "time": "21:32:33",
-            "type": "COMPRA_GRID_L5",
-            "price": 60243.29,
-            "profit": 0.0,
-            "buy_price": 0.0
-        },
-        {
-            "time": "21:32:32",
-            "type": "COMPRA_GRID_L4",
-            "price": 60552.23,
-            "profit": 0.0,
-            "buy_price": 0.0
-        },
-        {
-            "time": "21:32:29",
-            "type": "COMPRA_GRID_L3",
-            "price": 60861.17,
-            "profit": 0.0,
-            "buy_price": 0.0
-        },
-        {
-            "time": "21:32:27",
-            "type": "COMPRA_GRID_L2",
-            "price": 61170.11,
-            "profit": 0.0,
-            "buy_price": 0.0
-        },
-        {
-            "time": "21:32:26",
-            "type": "COMPRA_GRID_L1",
-            "price": 61479.05,
-            "profit": 0.0,
-            "buy_price": 0.0
-        },
-        {
-            "time": "18:05:21",
-            "type": "VENTA_GRID_PANIC_L4",
-            "price": 61681.99,
-            "profit": 0.036758399999998304,
-            "buy_price": 0.0
-        },
-        {
-            "time": "18:05:19",
-            "type": "VENTA_GRID_PANIC_L3",
-            "price": 61681.99,
-            "profit": -0.013414400000002047,
-            "buy_price": 0.0
-        },
-        {
-            "time": "18:05:18",
-            "type": "VENTA_GRID_PANIC_L2",
-            "price": 61681.99,
-            "profit": -0.06358720000000062,
-            "buy_price": 0.0
-        },
-        {
-            "time": "18:05:16",
-            "type": "VENTA_GRID_PANIC_L1",
-            "price": 61681.99,
-            "profit": -0.11376000000000097,
-            "buy_price": 0.0
-        },
-        {
-            "time": "18:03:21",
-            "type": "VENTA_GRID_L10",
-            "price": 59878.1,
-            "profit": 0.4259579999999996
-        },
-        {
-            "time": "18:03:19",
-            "type": "VENTA_GRID_L9",
-            "price": 60193.25,
-            "profit": 0.30875569999999897
-        },
-        {
-            "time": "18:03:17",
-            "type": "VENTA_GRID_L8",
-            "price": 60508.4,
-            "profit": 0.2554470999999996
-        },
-        {
-            "time": "18:03:15",
-            "type": "VENTA_GRID_L7",
-            "price": 60823.54,
-            "profit": 0.20213850000000022
-        },
-        {
-            "time": "18:03:13",
-            "type": "VENTA_GRID_L6",
-            "price": 61138.69,
-            "profit": 0.1383568000000004
-        },
-        {
-            "time": "18:03:11",
-            "type": "VENTA_GRID_L5",
-            "price": 61453.84,
-            "profit": 0.08818400000000004
-        },
-        {
-            "time": "18:02:51",
-            "type": "COMPRA_GRID_L10",
-            "price": 59580.2,
-            "profit": 0.0
-        },
-        {
-            "time": "18:02:50",
-            "type": "COMPRA_GRID_L9",
-            "price": 59893.78,
-            "profit": 0.0
-        },
-        {
-            "time": "18:02:48",
-            "type": "COMPRA_GRID_L8",
-            "price": 60207.36,
-            "profit": 0.0
-        },
-        {
-            "time": "18:02:47",
-            "type": "COMPRA_GRID_L7",
-            "price": 60520.94,
-            "profit": 0.0
-        },
-        {
-            "time": "18:02:45",
-            "type": "COMPRA_GRID_L6",
-            "price": 60834.52,
-            "profit": 0.0
-        },
-        {
-            "time": "18:02:43",
-            "type": "COMPRA_GRID_L5",
-            "price": 61148.1,
-            "profit": 0.0
-        },
-        {
-            "time": "17:55:29",
-            "type": "VENTA_GRID_L9",
-            "price": 60193.25,
-            "profit": 0.36364599999999925
-        },
-        {
-            "time": "17:55:26",
-            "type": "VENTA_GRID_L8",
-            "price": 60508.4,
-            "profit": 0.30092999999999925
-        },
-        {
-            "time": "17:55:25",
-            "type": "VENTA_GRID_L7",
-            "price": 60823.54,
-            "profit": 0.22728370000000098
-        },
-        {
-            "time": "17:55:23",
-            "type": "VENTA_GRID_L6",
-            "price": 61138.69,
-            "profit": 0.14122399999999935
-        },
-        {
-            "time": "17:55:21",
-            "type": "VENTA_GRID_L5",
-            "price": 61453.84,
-            "profit": 0.091051199999999
-        },
-        {
-            "time": "17:54:58",
-            "type": "COMPRA_GRID_L9",
-            "price": 59893.78,
-            "profit": 0.0
-        },
-        {
-            "time": "17:54:55",
-            "type": "COMPRA_GRID_L8",
-            "price": 60207.36,
-            "profit": 0.0
-        },
-        {
-            "time": "17:54:53",
-            "type": "COMPRA_GRID_L7",
-            "price": 60520.94,
-            "profit": 0.0
-        },
-        {
-            "time": "17:54:52",
-            "type": "COMPRA_GRID_L6",
-            "price": 60834.52,
-            "profit": 0.0
-        },
-        {
-            "time": "17:54:50",
-            "type": "COMPRA_GRID_L5",
-            "price": 61148.1,
-            "profit": 0.0
-        },
-        {
-            "time": "17:54:48",
-            "type": "COMPRA_GRID_L4",
-            "price": 61461.68,
-            "profit": 0.0
-        },
-        {
-            "time": "17:48:59",
-            "type": "VENTA_GRID_L6",
-            "price": 61138.69,
-            "profit": 0.1876192999999997
-        },
-        {
-            "time": "17:48:56",
-            "type": "VENTA_GRID_L5",
-            "price": 61453.84,
-            "profit": 0.12803909999999874
-        },
-        {
-            "time": "17:48:54",
-            "type": "VENTA_GRID_L4",
-            "price": 61768.99,
-            "profit": 0.06845889999999955
-        },
-        {
-            "time": "17:48:32",
-            "type": "COMPRA_GRID_L6",
-            "price": 60834.52,
-            "profit": 0.0
-        },
-        {
-            "time": "17:48:30",
-            "type": "COMPRA_GRID_L5",
-            "price": 61148.1,
-            "profit": 0.0
+            "level": 5,
+            "buy_price": 60342.75,
+            "sell_price": 60644.463749999995,
+            "status": "WAITING_BUY",
+            "alloc_usdt": 11.8,
+            "btc_qty": 0.0,
+            "order_id": 3047541
         }
     ],
-    "grid_spacing_pct": 0.005
+    "total_profit": 0.0,
+    "history": [
+        {
+            "time": "09:48:08",
+            "type": "COMPRA_TREND",
+            "price": 62304.63,
+            "profit": 0.0,
+            "buy_price": 0.0
+        }
+    ],
+    "grid_spacing_pct": 0.005,
+    "trend_position": {
+        "buy_price": 62304.63,
+        "qty": 0.0017992242310081931,
+        "highest_price": 62304.63,
+        "stop_loss_price": 60435.4911,
+        "sl_order_id": 3027733
+    }
 }
