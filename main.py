@@ -75,19 +75,19 @@ class HybridBot:
         })
         self.state["history"] = self.state["history"][:50]
 
-    def deploy_grid_system(self, current_price, grid_spacing_pct):
+    def deploy_grid_system(self, current_price, current_ema, grid_spacing_pct):
         v_balance = self.state.get("virtual_balance", 118.0)
         total_qty, sl_price, total_usdt_alloc = calculate_auto_compounding_size(
             self.client, self.symbol, current_price, allocation_percentage=0.5, override_balance=v_balance
         )
         if total_qty <= 0: return False
 
-        print(f"[INICIO] MOTOR GRID DINÁMICO. Capital asignado: {total_usdt_alloc:.2f} USDT | Separación: {grid_spacing_pct*100:.2f}%")
+        print(f"[INICIO] MOTOR GRID DINÁMICO. Anclado en EMA: {current_ema:.2f} | Separación: {grid_spacing_pct*100:.2f}%")
         
         bullet_usdt = total_usdt_alloc / self.num_grids
         grids = []
         for i in range(1, self.num_grids + 1):
-            buy_p = current_price * (1 - (i * grid_spacing_pct))
+            buy_p = current_ema * (1 - (i * grid_spacing_pct))
             sell_p = buy_p * (1 + grid_spacing_pct)
             qty_raw = bullet_usdt / buy_p
             
@@ -104,7 +104,7 @@ class HybridBot:
                     "order_id": limit_order['orderId']
                 })
         self.state["grids"] = grids
-        self.state["base_price"] = current_price
+        self.state["base_price"] = current_ema
         self.state["grid_spacing_pct"] = grid_spacing_pct
         return True
 
@@ -217,6 +217,7 @@ class HybridBot:
             last_signal_row = df_signals.iloc[-1]
             signal = last_signal_row['signal']
             dynamic_grid_pct = last_signal_row['dynamic_grid_pct']
+            current_ema = last_signal_row['ema_50']
         except Exception as e:
             print(f"Error analizando datos: {e}")
             if state_changed: self.save_state()
@@ -281,16 +282,16 @@ class HybridBot:
         # --- MOTOR 2: GRID (50%) ---
         # Despliegue automático si no hay emergencia (signal != -1)
         if len(grids) == 0 and signal != -1:
-            if self.deploy_grid_system(current_price, dynamic_grid_pct):
+            if self.deploy_grid_system(current_price, current_ema, dynamic_grid_pct):
                 state_changed = True
                 
-        # Lógica de Red Dinámica de Arrastre (Trailing Grid)
+        # Lógica de Red Dinámica de Arrastre Estructural (Trailing EMA Grid)
         if len(grids) > 0 and signal != -1:
-            base_price = self.state.get("base_price", current_price)
+            base_price = self.state.get("base_price", current_ema)
             grid_spacing_pct = self.state.get("grid_spacing_pct", 0.005)
-            # Si el precio actual sube más de 2 niveles por encima de la red
-            if current_price > base_price * (1 + (grid_spacing_pct * 2.0)):
-                print(f"[TRAILING GRID] Precio subió a {current_price:.2f}. Re-centrando red de pesca...")
+            # Si la EMA sube más de 1 nivel entero por encima de nuestra ancla original
+            if current_ema > base_price * (1 + (grid_spacing_pct * 1.0)):
+                print(f"[TRAILING ESTRUCTURAL] EMA subió a {current_ema:.2f}. Moviendo red de pesca hacia arriba...")
                 # Cancelar órdenes límite actuales del Grid en Binance
                 for g in grids:
                     if "order_id" in g:
