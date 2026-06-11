@@ -1,23 +1,23 @@
 {
     "symbol": "SOLUSDT",
-    "base_price": 64.39,
+    "base_price": 64.61,
     "is_running": true,
     "grids": [
         {
             "level": 1,
-            "buy_price": 64.164635,
-            "sell_price": 64.38921122250001,
+            "buy_price": 64.383865,
+            "sell_price": 64.6092085275,
             "status": "WAITING_BUY",
             "alloc_usdt": 14.75,
-            "btc_qty": 0.22987740832625322
+            "btc_qty": 0.22909466525502933
         },
         {
             "level": 2,
-            "buy_price": 63.93927,
-            "sell_price": 64.163057445,
+            "buy_price": 64.15773,
+            "sell_price": 64.382282055,
             "status": "WAITING_BUY",
             "alloc_usdt": 14.75,
-            "btc_qty": 0.23068765095378788
+            "btc_qty": 0.2299021489694227
         }
     ],
     "total_profit": 0.0,
