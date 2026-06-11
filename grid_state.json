@@ -1,56 +1,24 @@
 {
     "symbol": "BTCUSDT",
-    "base_price": 62041.344023133075,
+    "base_price": 61943.08364261141,
     "is_running": true,
-    "grids": [
-        {
-            "level": 1,
-            "buy_price": 61731.13730301741,
-            "sell_price": 62039.792989532485,
-            "status": "WAITING_BUY",
-            "alloc_usdt": 11.4812597,
-            "btc_qty": 0.0,
-            "order_id": 3138470
-        },
-        {
-            "level": 2,
-            "buy_price": 61420.93058290175,
-            "sell_price": 61728.03523581625,
-            "status": "WAITING_BUY",
-            "alloc_usdt": 11.4812597,
-            "btc_qty": 0.0,
-            "order_id": 3136934
-        },
-        {
-            "level": 3,
-            "buy_price": 61110.72386278608,
-            "sell_price": 61416.277482100006,
-            "status": "WAITING_BUY",
-            "alloc_usdt": 11.4812597,
-            "btc_qty": 0.0,
-            "order_id": 3136961
-        },
-        {
-            "level": 4,
-            "buy_price": 60800.51714267041,
-            "sell_price": 61104.519728383755,
-            "status": "WAITING_BUY",
-            "alloc_usdt": 11.4812597,
-            "btc_qty": 0.0,
-            "order_id": 3136973
-        },
-        {
-            "level": 5,
-            "buy_price": 60490.31042255475,
-            "sell_price": 60792.76197466752,
-            "status": "WAITING_BUY",
-            "alloc_usdt": 11.4812597,
-            "btc_qty": 0.0,
-            "order_id": 3136987
-        }
-    ],
-    "total_profit": -0.42237980000000164,
+    "grids": [],
+    "total_profit": -0.1517595000000025,
     "history": [
+        {
+            "time": "14:37:10",
+            "type": "VENTA_GRID_PANIC_L1",
+            "price": 61852.0,
+            "profit": 0.27062029999999915,
+            "buy_price": 0.0
+        },
+        {
+            "time": "14:31:06",
+            "type": "COMPRA_GRID_L1",
+            "price": 61731.14,
+            "profit": 0.0,
+            "buy_price": 0.0
+        },
         {
             "time": "14:14:39",
             "type": "VENTA_GRID_L1",
@@ -278,5 +246,5 @@
     ],
     "grid_spacing_pct": 0.005,
     "trend_position": null,
-    "virtual_balance": 117.5776202
+    "virtual_balance": 117.8482405
 }
