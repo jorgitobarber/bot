@@ -185,7 +185,7 @@ async function fetchGridState() {
                         axisLabelVisible: true
                     });
                     gridLines.push(line);
-                    li.innerHTML = `<span style="color:#00ff88">VENTA</span> en $${g.sell_price.toFixed(2)}`;
+                    li.innerHTML = `<span style="color:#00ff88; font-weight:bold;">[COMPRADO]</span> Esperando rebote a $${g.sell_price.toFixed(2)} para VENDER`;
                 } else {
                     // Línea de Compra
                     const line = candleSeries.createPriceLine({
@@ -194,7 +194,7 @@ async function fetchGridState() {
                         axisLabelVisible: true
                     });
                     gridLines.push(line);
-                    li.innerHTML = `<span style="color:#3b82f6">COMPRA</span> en $${g.buy_price.toFixed(2)}`;
+                    li.innerHTML = `<span style="color:#3b82f6; font-weight:bold;">[RED LISTA]</span> Pendiente de comprar si cae a $${g.buy_price.toFixed(2)}`;
                 }
                 if(openOrdersList) openOrdersList.appendChild(li);
             });
@@ -204,6 +204,18 @@ async function fetchGridState() {
             if (investedEl) investedEl.innerText = '$ ' + totalInvested.toFixed(2);
             profitEl.innerText = '$ ' + (state.grid_profit || 0).toFixed(2);
             profitEl.style.color = (state.grid_profit || 0) >= 0 ? '#00ff88' : '#ff0055';
+
+            // Calcular inversión real en tiempo real
+            let trendInvested = 0.0;
+            if (state.trend_position) {
+                trendInvested = state.trend_position.qty * state.trend_position.buy_price;
+            }
+            let gridInvested = 0.0;
+            state.grids.forEach(g => {
+                if (g.status === "WAITING_SELL") {
+                    gridInvested += g.alloc_usdt || (g.btc_qty * g.buy_price);
+                }
+            });
 
             // Telemetría Financiera
             const telGlobal = document.getElementById('telemetryGlobal');
@@ -217,12 +229,16 @@ async function fetchGridState() {
             }
             if (telTrend) {
                 const trendP = state.trend_profit || 0;
-                telTrend.innerText = `$ ${trendP.toFixed(2)}`;
+                let refCap = (state.allocations && state.allocations.trend_usdt > 0) ? state.allocations.trend_usdt : 118.0;
+                const trendPct = (trendP / refCap) * 100;
+                telTrend.innerText = `$ ${trendP.toFixed(2)} (${trendPct >= 0 ? '+' : ''}${trendPct.toFixed(2)}%)`;
                 telTrend.style.color = trendP >= 0 ? '#00ff88' : '#ff0055';
             }
             if (telGrid) {
                 const gridP = state.grid_profit || 0;
-                telGrid.innerText = `$ ${gridP.toFixed(2)}`;
+                let refCap = (state.allocations && state.allocations.grid_usdt > 0) ? state.allocations.grid_usdt : 118.0;
+                const gridPct = (gridP / refCap) * 100;
+                telGrid.innerText = `$ ${gridP.toFixed(2)} (${gridPct >= 0 ? '+' : ''}${gridPct.toFixed(2)}%)`;
                 telGrid.style.color = gridP >= 0 ? '#00ff88' : '#ff0055';
             }
             
@@ -232,11 +248,15 @@ async function fetchGridState() {
                 const gridPctEl = document.getElementById('gridAllocPct');
                 const trendUsdtEl = document.getElementById('trendAllocUsdt');
                 const gridUsdtEl = document.getElementById('gridAllocUsdt');
+                const trendInvEl = document.getElementById('trendInvestedUsdt');
+                const gridInvEl = document.getElementById('gridInvestedUsdt');
                 
                 if (trendPctEl) trendPctEl.innerText = `(${(state.allocations.trend_pct * 100).toFixed(0)}%)`;
                 if (gridPctEl) gridPctEl.innerText = `(${(state.allocations.grid_pct * 100).toFixed(0)}%)`;
                 if (trendUsdtEl) trendUsdtEl.innerText = `Asignado: $${state.allocations.trend_usdt.toFixed(2)}`;
                 if (gridUsdtEl) gridUsdtEl.innerText = `Asignado: $${state.allocations.grid_usdt.toFixed(2)}`;
+                if (trendInvEl) trendInvEl.innerText = `Invertido: $${trendInvested.toFixed(2)}`;
+                if (gridInvEl) gridInvEl.innerText = `Invertido: $${gridInvested.toFixed(2)}`;
             }
             
             // Render History

@@ -1,49 +1,58 @@
 {
     "symbol": "SOLUSDT",
-    "base_price": 64.61,
+    "base_price": 66.85,
     "is_running": true,
     "grids": [
         {
             "level": 1,
-            "buy_price": 64.383865,
-            "sell_price": 64.6092085275,
-            "status": "WAITING_BUY",
-            "alloc_usdt": 14.75,
-            "btc_qty": 0.22909466525502933
+            "buy_price": 66.616025,
+            "sell_price": 66.8491810875,
+            "status": "WAITING_SELL",
+            "alloc_usdt": 14.0125,
+            "btc_qty": 0.21,
+            "order_id": 658988
         },
         {
             "level": 2,
-            "buy_price": 64.15773,
-            "sell_price": 64.382282055,
+            "buy_price": 66.38204999999999,
+            "sell_price": 66.61438717499999,
             "status": "WAITING_BUY",
-            "alloc_usdt": 14.75,
-            "btc_qty": 0.2299021489694227
+            "alloc_usdt": 14.0125,
+            "btc_qty": 0.211,
+            "order_id": 658989
         }
     ],
-    "total_profit": 0.0,
-    "grid_profit": 0.0,
+    "total_profit": -0.013989365249999998,
+    "grid_profit": -0.013989365249999998,
     "trend_profit": 0.0,
-    "virtual_balance": 118.0,
+    "virtual_balance": 117.98601063475,
     "history": [
         {
-            "time": "19:30:31",
+            "time": "16:28:06",
+            "type": "COMPRA_GRID_L1",
+            "price": 66.616025,
+            "profit": -0.013989365249999998,
+            "buy_price": 0.0
+        },
+        {
+            "time": "16:25:22",
             "type": "COMPRA_TREND",
-            "price": 63.11,
+            "price": 66.85,
             "profit": 0.0,
             "buy_price": 0.0
         }
     ],
     "grid_spacing_pct": 0.0035,
-    "trend_position": {
-        "buy_price": 63.11,
-        "qty": 1.7762636666138487,
-        "highest_price": 65.05,
-        "stop_loss_price": 63.098499999999994
-    },
     "allocations": {
         "grid_pct": 0.25,
         "trend_pct": 0.75,
-        "grid_usdt": 29.5,
-        "trend_usdt": 88.5
+        "grid_usdt": 29.4965026586875,
+        "trend_usdt": 88.4895079760625
+    },
+    "trend_position": {
+        "buy_price": 66.85,
+        "qty": 1.258,
+        "highest_price": 66.85,
+        "stop_loss_price": 64.8445
     }
 }
