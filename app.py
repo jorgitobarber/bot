@@ -18,11 +18,41 @@ def index():
 @app.route('/api/portfolio', methods=['GET'])
 def portfolio():
     try:
-        # La billetera sí usa el cliente privado (Testnet o Mainnet según el .env)
-        client = get_binance_client()
-        account = client.get_account()
-        # Mostrar únicamente USDT y BTC para evitar ruido de Testnet
-        balances = [b for b in account['balances'] if b['asset'] in ['USDT', 'BTC'] and (float(b['free']) > 0 or float(b['locked']) > 0)]
+        # Billetera Virtual (Paper Trading Realista)
+        total_equity = 118.0
+        invested_usdt = 0.0
+        btc_balance = 0.0
+        sol_balance = 0.0
+        
+        for symbol in ["BTCUSDT", "SOLUSDT"]:
+            state_file = f"grid_state_{symbol}.json"
+            if os.path.exists(state_file):
+                with open(state_file, "r") as f:
+                    state = json.load(f)
+                    
+                total_equity += state.get("total_profit", 0.0)
+                
+                trend = state.get("trend_position")
+                if trend:
+                    qty = trend.get("qty", 0.0)
+                    invested_usdt += qty * trend.get("buy_price", 0.0)
+                    if symbol == "BTCUSDT": btc_balance += qty
+                    if symbol == "SOLUSDT": sol_balance += qty
+                    
+                for g in state.get("grids", []):
+                    if g.get("status") == "WAITING_SELL":
+                        qty = g.get("btc_qty", 0.0)
+                        invested_usdt += qty * g.get("buy_price", 0.0)
+                        if symbol == "BTCUSDT": btc_balance += qty
+                        if symbol == "SOLUSDT": sol_balance += qty
+        
+        free_usdt = total_equity - invested_usdt
+        
+        balances = [
+            {"asset": "USDT", "free": f"{free_usdt:.2f}"},
+            {"asset": "BTC", "free": f"{btc_balance:.4f}"},
+            {"asset": "SOL", "free": f"{sol_balance:.4f}"}
+        ]
         return jsonify({'success': True, 'balances': balances})
     except Exception as e:
         traceback.print_exc()
@@ -31,28 +61,32 @@ def portfolio():
 @app.route('/api/grid_state', methods=['GET'])
 def grid_state():
     try:
-        if os.path.exists("grid_state.json"):
-            with open("grid_state.json", "r") as f:
+        symbol = request.args.get('symbol', 'BTCUSDT')
+        state_file = f"grid_state_{symbol}.json"
+        if os.path.exists(state_file):
+            with open(state_file, "r") as f:
                 state = json.load(f)
             return jsonify({'success': True, 'state': state})
-        return jsonify({'success': False, 'error': 'Grid no inicializado'})
+        return jsonify({'success': False, 'error': f'Grid no inicializado para {symbol}'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/toggle_bot', methods=['POST'])
 def toggle_bot():
     try:
-        if os.path.exists("grid_state.json"):
-            with open("grid_state.json", "r") as f:
+        symbol = request.json.get('symbol', 'BTCUSDT') if request.is_json else request.args.get('symbol', 'BTCUSDT')
+        state_file = f"grid_state_{symbol}.json"
+        if os.path.exists(state_file):
+            with open(state_file, "r") as f:
                 state = json.load(f)
             
             state["is_running"] = not state.get("is_running", True)
             
-            with open("grid_state.json", "w") as f:
+            with open(state_file, "w") as f:
                 json.dump(state, f, indent=4)
                 
             return jsonify({'success': True, 'is_running': state["is_running"]})
-        return jsonify({'success': False, 'error': 'Grid no inicializado'})
+        return jsonify({'success': False, 'error': f'Grid no inicializado para {symbol}'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 

@@ -134,7 +134,8 @@ let gridLines = [];
 
 async function fetchGridState() {
     try {
-        const res = await fetch('/api/grid_state');
+        const symbol = document.getElementById('symbolSelect').value;
+        const res = await fetch(`/api/grid_state?symbol=${symbol}`);
         const result = await res.json();
         const btn = document.getElementById('toggleBotBtn');
         const boughtCountEl = document.getElementById('gridBoughtCount');
@@ -147,7 +148,7 @@ async function fetchGridState() {
             if (basePriceEl && state.base_price) {
                 basePriceEl.style.color = '#f8fafc';
                 basePriceEl.style.fontSize = '2rem';
-                basePriceEl.innerText = '$ ' + state.base_price.toLocaleString('en-US', { minimumFractionDigits: 2 });
+                basePriceEl.innerText = '$ ' + state.base_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             }
             
             if (state.is_running) {
@@ -201,7 +202,42 @@ async function fetchGridState() {
             boughtCountEl.innerText = boughtCount;
             const investedEl = document.getElementById('gridInvested');
             if (investedEl) investedEl.innerText = '$ ' + totalInvested.toFixed(2);
-            profitEl.innerText = '$ ' + state.total_profit.toFixed(2);
+            profitEl.innerText = '$ ' + (state.grid_profit || 0).toFixed(2);
+            profitEl.style.color = (state.grid_profit || 0) >= 0 ? '#00ff88' : '#ff0055';
+
+            // Telemetría Financiera
+            const telGlobal = document.getElementById('telemetryGlobal');
+            const telTrend = document.getElementById('telemetryTrend');
+            const telGrid = document.getElementById('telemetryGrid');
+            
+            if (telGlobal) {
+                const yieldPct = (state.total_profit / 118.0) * 100;
+                telGlobal.innerText = `$ ${state.total_profit.toFixed(2)} (${yieldPct >= 0 ? '+' : ''}${yieldPct.toFixed(2)}%)`;
+                telGlobal.style.color = state.total_profit >= 0 ? '#00ff88' : '#ff0055';
+            }
+            if (telTrend) {
+                const trendP = state.trend_profit || 0;
+                telTrend.innerText = `$ ${trendP.toFixed(2)}`;
+                telTrend.style.color = trendP >= 0 ? '#00ff88' : '#ff0055';
+            }
+            if (telGrid) {
+                const gridP = state.grid_profit || 0;
+                telGrid.innerText = `$ ${gridP.toFixed(2)}`;
+                telGrid.style.color = gridP >= 0 ? '#00ff88' : '#ff0055';
+            }
+            
+            // Asignación Dinámica
+            if (state.allocations) {
+                const trendPctEl = document.getElementById('trendAllocPct');
+                const gridPctEl = document.getElementById('gridAllocPct');
+                const trendUsdtEl = document.getElementById('trendAllocUsdt');
+                const gridUsdtEl = document.getElementById('gridAllocUsdt');
+                
+                if (trendPctEl) trendPctEl.innerText = `(${(state.allocations.trend_pct * 100).toFixed(0)}%)`;
+                if (gridPctEl) gridPctEl.innerText = `(${(state.allocations.grid_pct * 100).toFixed(0)}%)`;
+                if (trendUsdtEl) trendUsdtEl.innerText = `Asignado: $${state.allocations.trend_usdt.toFixed(2)}`;
+                if (gridUsdtEl) gridUsdtEl.innerText = `Asignado: $${state.allocations.grid_usdt.toFixed(2)}`;
+            }
             
             // Render History
             const historyList = document.getElementById('tradeHistoryList');
@@ -233,7 +269,12 @@ async function fetchGridState() {
 
 document.getElementById('toggleBotBtn').addEventListener('click', async () => {
     try {
-        await fetch('/api/toggle_bot', {method: 'POST'});
+        const symbol = document.getElementById('symbolSelect').value;
+        await fetch('/api/toggle_bot', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({symbol: symbol})
+        });
         fetchGridState();
     } catch (e) {
         console.error('toggleBot error:', e);
@@ -241,7 +282,10 @@ document.getElementById('toggleBotBtn').addEventListener('click', async () => {
 });
 
 // Eventos de cambio de moneda / temporalidad
-document.getElementById('symbolSelect').addEventListener('change', fetchMarketData);
+document.getElementById('symbolSelect').addEventListener('change', () => {
+    fetchMarketData();
+    fetchGridState();
+});
 document.getElementById('intervalSelect').addEventListener('change', fetchMarketData);
 
 // Arrancar todo y programar los siguientes ciclos de forma recursiva

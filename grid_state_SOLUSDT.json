@@ -1,0 +1,49 @@
+{
+    "symbol": "SOLUSDT",
+    "base_price": 64.39,
+    "is_running": true,
+    "grids": [
+        {
+            "level": 1,
+            "buy_price": 64.164635,
+            "sell_price": 64.38921122250001,
+            "status": "WAITING_BUY",
+            "alloc_usdt": 14.75,
+            "btc_qty": 0.22987740832625322
+        },
+        {
+            "level": 2,
+            "buy_price": 63.93927,
+            "sell_price": 64.163057445,
+            "status": "WAITING_BUY",
+            "alloc_usdt": 14.75,
+            "btc_qty": 0.23068765095378788
+        }
+    ],
+    "total_profit": 0.0,
+    "grid_profit": 0.0,
+    "trend_profit": 0.0,
+    "virtual_balance": 118.0,
+    "history": [
+        {
+            "time": "19:30:31",
+            "type": "COMPRA_TREND",
+            "price": 63.11,
+            "profit": 0.0,
+            "buy_price": 0.0
+        }
+    ],
+    "grid_spacing_pct": 0.0035,
+    "trend_position": {
+        "buy_price": 63.11,
+        "qty": 1.7762636666138487,
+        "highest_price": 65.05,
+        "stop_loss_price": 63.098499999999994
+    },
+    "allocations": {
+        "grid_pct": 0.25,
+        "trend_pct": 0.75,
+        "grid_usdt": 29.5,
+        "trend_usdt": 88.5
+    }
+}

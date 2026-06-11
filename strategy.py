@@ -85,8 +85,8 @@ def generate_signals(df: pd.DataFrame, ema_window: int = 50, rsi_window: int = 1
     # 2. Grid Dinámico: Espaciado basado en Volatilidad (ATR / Precio)
     # Multiplicamos por 0.5 para que las trampas estén a media vela de distancia en promedio
     raw_grid_pct = (df['atr'] / df['close']) * 0.5
-    # Limitamos mínimo 0.5% (garantiza ganancia tras Binance) y máximo 1.5%
-    df['dynamic_grid_pct'] = raw_grid_pct.clip(lower=0.005, upper=0.015)
+    # Limitamos mínimo 0.35% (Scalping Seguro) y máximo 1.5% (Swing)
+    df['dynamic_grid_pct'] = raw_grid_pct.clip(lower=0.0035, upper=0.015)
     
     # 3. Calculamos los indicadores de tendencia y régimen
     df['ema_50'] = calculate_ema(df, ema_window)
@@ -103,9 +103,11 @@ def generate_signals(df: pd.DataFrame, ema_window: int = 50, rsi_window: int = 1
         current_adx = df.loc[i, 'adx_14']
         
         # --- LÓGICA DE RÉGIMEN HÍBRIDO ---
-        # Freno con Histéresis: Solo aborta si cae un 0.3% por debajo de la EMA (Colchón) o RSI < 25
-        if current_close < (current_ema * 0.997) or current_rsi < 25:
-            df.loc[i, 'signal'] = -1  # ABORTAR / FRENO
+        # Freno con Histéresis: Solo aborta si el RSI indica Pánico Extremo Absoluto (< 20)
+        if current_rsi < 20:
+            df.loc[i, 'signal'] = -1  # ABORTAR / FRENO (Vender todo)
+        elif current_rsi < 40:
+            df.loc[i, 'signal'] = -2  # PELIGRO (Mantener, pero no redes nuevas)
             
         # Si estamos sobre la EMA (Tendencia alcista confirmada)
         elif current_close >= current_ema:
