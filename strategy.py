@@ -38,7 +38,7 @@ def calculate_rsi(df: pd.DataFrame, period: int = 14) -> pd.Series:
     
     rs = avg_gain / avg_loss
     rsi = 100 - (100 / (1 + rs))
-    return rsi.fillna(50) # Neutro si no hay suficientes datos
+    return rsi.fillna(50)
 
 def calculate_adx(df: pd.DataFrame, period: int = 14) -> pd.Series:
     """
@@ -74,54 +74,35 @@ def calculate_adx(df: pd.DataFrame, period: int = 14) -> pd.Series:
 
 def generate_signals(df: pd.DataFrame, ema_window: int = 50, rsi_window: int = 14) -> pd.DataFrame:
     """
-    Cerebro Institucional Opción C: Market Maker con Freno de Emergencia.
-    Calcula volatilidad para el Grid Dinámico y detecta colapsos estructurales.
+    Motor Momentum 1H: Swing Trading basado en la acción del precio y fuerza de tendencia.
+    Retorna señal de entrada si se cumplen los requisitos.
     """
     df = df.copy()
     
-    # 1. Calculamos la volatilidad absoluta (ATR)
     df['atr'] = calculate_atr(df, 14)
-    
-    # 2. Grid Dinámico: Espaciado basado en Volatilidad (ATR / Precio)
-    # Multiplicamos por 0.5 para que las trampas estén a media vela de distancia en promedio
-    raw_grid_pct = (df['atr'] / df['close']) * 0.5
-    # Limitamos mínimo 0.35% (Scalping Seguro) y máximo 1.5% (Swing)
-    df['dynamic_grid_pct'] = raw_grid_pct.clip(lower=0.0035, upper=0.015)
-    
-    # 3. Calculamos los indicadores de tendencia y régimen
     df['ema_50'] = calculate_ema(df, ema_window)
     df['rsi_14'] = calculate_rsi(df, rsi_window)
     df['adx_14'] = calculate_adx(df, 14)
     
     df['signal'] = 0
     
-    # Iteramos a partir del periodo 50 para tener datos válidos
     for i in range(max(ema_window, rsi_window), len(df)):
         current_close = df.loc[i, 'close']
         current_ema = df.loc[i, 'ema_50']
         current_rsi = df.loc[i, 'rsi_14']
         current_adx = df.loc[i, 'adx_14']
         
-        # --- LÓGICA DE RÉGIMEN HÍBRIDO ---
-        # Freno con Histéresis: Solo aborta si el RSI indica Pánico Extremo Absoluto (< 20)
-        if current_rsi < 20:
-            df.loc[i, 'signal'] = -1  # ABORTAR / FRENO (Vender todo)
-        elif current_rsi < 40:
-            df.loc[i, 'signal'] = -2  # PELIGRO (Mantener, pero no redes nuevas)
-            
-        # Si estamos sobre la EMA (Tendencia alcista confirmada)
-        elif current_close >= current_ema:
-            if current_adx < 25:
-                # Mercado Lateral o tendencia débil: MODO GRID
-                df.loc[i, 'signal'] = 1
-            else:
-                # Tendencia Fuerte detectada: MODO TREND FOLLOWER
-                df.loc[i, 'signal'] = 2
+        # LÓGICA DE MOMENTUM: Trend Following
+        # 1. Precio sobre la EMA50 (Tendencia principal alcista)
+        # 2. ADX > 25 (Fuerza direccional confirmada)
+        # 3. RSI < 70 (No estamos comprando un techo sobrecomprado)
+        if current_close > current_ema and current_adx > 25 and current_rsi < 70:
+            df.loc[i, 'signal'] = 1  # SEÑAL DE ENTRADA (COMPRA)
             
     return df
 
 if __name__ == "__main__":
-    print("Probando Cerebro de Tendencia (EMA + RSI)...")
+    print("Probando Motor Momentum 1H...")
     np.random.seed(42)
     precios = 100 + np.cumsum(np.random.normal(0.0, 1.0, 300))
     data = {
@@ -134,4 +115,4 @@ if __name__ == "__main__":
     }
     df_test = pd.DataFrame(data)
     df_signals = generate_signals(df_test)
-    print(df_signals[["open_time", "close", "ema_50", "rsi_14", "atr", "signal"]].tail(10))
+    print(df_signals[["open_time", "close", "ema_50", "adx_14", "rsi_14", "atr", "signal"]].tail(10))

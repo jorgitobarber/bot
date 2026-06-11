@@ -22,11 +22,25 @@
             "order_id": 658989
         }
     ],
-    "total_profit": -0.013989365249999998,
-    "grid_profit": -0.013989365249999998,
+    "total_profit": 0.0010840804310737265,
+    "grid_profit": 0.0010840804310737265,
     "trend_profit": 0.0,
-    "virtual_balance": 117.98601063475,
+    "virtual_balance": 118.00108408043107,
     "history": [
+        {
+            "time": "17:02:04",
+            "type": "VENTA_GRID_L2",
+            "price": 66.61438717499999,
+            "profit": 0.02908005823107372,
+            "buy_price": 66.38204999999999
+        },
+        {
+            "time": "16:39:16",
+            "type": "COMPRA_GRID_L2",
+            "price": 66.38204999999999,
+            "profit": -0.014006612549999999,
+            "buy_price": 0.0
+        },
         {
             "time": "16:28:06",
             "type": "COMPRA_GRID_L1",
@@ -44,10 +58,10 @@
     ],
     "grid_spacing_pct": 0.0035,
     "allocations": {
-        "grid_pct": 0.25,
-        "trend_pct": 0.75,
-        "grid_usdt": 29.4965026586875,
-        "trend_usdt": 88.4895079760625
+        "grid_pct": 1.0,
+        "trend_pct": 0.0,
+        "grid_usdt": 118.00108408043107,
+        "trend_usdt": 0.0
     },
     "trend_position": {
         "buy_price": 66.85,

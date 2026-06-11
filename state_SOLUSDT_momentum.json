@@ -1,0 +1,36 @@
+{
+    "symbol": "SOLUSDT",
+    "is_running": true,
+    "positions": [
+        {
+            "buy_price": 66.7,
+            "qty": 0.8845577211394302,
+            "highest_price": 67.11,
+            "stop_loss_price": 65.24143737066835
+        },
+        {
+            "buy_price": 66.7,
+            "qty": 0.8394895052473762,
+            "highest_price": 67.11,
+            "stop_loss_price": 65.24143737066835
+        }
+    ],
+    "total_profit": -0.11499395000000001,
+    "virtual_balance": 117.88500605,
+    "history": [
+        {
+            "time": "2026-06-11 17:04:54",
+            "type": "COMPRA_HEAVY_BULLET",
+            "price": 66.7,
+            "profit": -0.05599395,
+            "buy_price": 0.0
+        },
+        {
+            "time": "2026-06-11 17:04:50",
+            "type": "COMPRA_HEAVY_BULLET",
+            "price": 66.7,
+            "profit": -0.059000000000000004,
+            "buy_price": 0.0
+        }
+    ]
+}
